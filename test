@@ -1,0 +1,52 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class SequencesListReportMapper {
+
+    private static final SubSequenceStatus TREATED = SubSequenceStatus.TREATED; // Assuming TREATED is a constant
+
+    @AfterMapping
+    default void mapSubSequences(@MappingTarget SequencesListReport sequencesListReport) {
+        List<SubSequence> subSequences = sequencesListReport.getSubSequences();
+        
+        List<Integer> treatedOperationsNumber = subSequences.stream()
+            .filter(subSequence -> SubSequenceStatus.fromDatabaseValue(subSequence.getForced()) == TREATED)
+            .map(SubSequence::getOperationsNumber)
+            .collect(Collectors.toList());
+
+        List<BigDecimal> treatedAmount = subSequences.stream()
+            .filter(subSequence -> SubSequenceStatus.fromDatabaseValue(subSequence.getForced()) == TREATED)
+            .map(SubSequence::getAmount)
+            .collect(Collectors.toList());
+
+        List<Integer> forcedOperationsNumber = subSequences.stream()
+            .filter(subSequence -> SubSequenceStatus.fromDatabaseValue(subSequence.getForced()) != TREATED)
+            .map(SubSequence::getOperationsNumber)
+            .collect(Collectors.toList());
+
+        List<BigDecimal> forcedAmount = subSequences.stream()
+            .filter(subSequence -> SubSequenceStatus.fromDatabaseValue(subSequence.getForced()) != TREATED)
+            .map(SubSequence::getAmount)
+            .collect(Collectors.toList());
+
+        List<String> receiverBankReference = subSequences.stream()
+            .map(SubSequence::getReceiverBankReference)
+            .collect(Collectors.toList());
+
+        List<String> senderBankReference = subSequences.stream()
+            .map(SubSequence::getSenderBankReference)
+            .collect(Collectors.toList());
+
+        sequencesListReport.setTreatedOperationsNumber(convertListToString(treatedOperationsNumber));
+        sequencesListReport.setForcedOperationsNumber(convertListToString(forcedOperationsNumber));
+        sequencesListReport.setTreatedAmount(convertListToString(treatedAmount));
+        sequencesListReport.setForcedAmount(convertListToString(forcedAmount));
+        sequencesListReport.setReceiverBankReference(convertListToString(receiverBankReference));
+        sequencesListReport.setSenderBankReference(convertListToString(senderBankReference));
+    }
+
+    private <T> String convertListToString(List<T> list) {
+        return list.stream().map(String::valueOf).collect(Collectors.joining(","));
+    }
+}
