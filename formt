@@ -1,0 +1,13 @@
+public static void main(String[] args) {
+        BigDecimal number = new BigDecimal("1234567.89");
+
+        // Format en anglais
+        NumberFormat enFormat = NumberFormat.getInstance(Locale.ENGLISH);
+        String enFormattedNumber = enFormat.format(number);
+        System.out.println("Formatted number in English: " + enFormattedNumber);
+
+        // Format en français
+        NumberFormat frFormat = NumberFormat.getInstance(Locale.FRENCH);
+        String frFormattedNumber = frFormat.format(number);
+        System.out.println("Formatted number in French: " + frFormattedNumber);
+    }
