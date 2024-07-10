@@ -1,0 +1,50 @@
+
+
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.export.*;
+import net.sf.jasperreports.export.type.RunDirectionEnum;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+
+public class ExportReport {
+
+    public byte[] exportToExcel(SequenceSearchCriteria paramsSource, JRBeanCollectionDataSource jrBeanCollectionDataSource, Language language) throws JRException, IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        InputStream stream = null;
+
+        try {
+            // Assume getJasperTemplateAsStream is a method to get the Jasper template stream
+            stream = getJasperTemplateAsStream(language);
+            JasperReport report = JasperCompileManager.compileReport(stream);
+            JasperPrint print = JasperFillManager.fillReport(report, getReportParams(paramsSource), jrBeanCollectionDataSource);
+
+            JRXlsxExporter exporter = new JRXlsxExporter();
+            exporter.setExporterInput(new SimpleExporterInput(print));
+            exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(byteArrayOutputStream));
+
+            SimpleXlsxReportConfiguration configuration = new SimpleXlsxReportConfiguration();
+            configuration.setOnePagePerSheet(true); // Setting one page per sheet
+
+            exporter.setConfiguration(configuration);
+            exporter.exportReport();
+
+            return byteArrayOutputStream.toByteArray();
+        } finally {
+            if (stream != null) {
+                IOUtils.closeQuietly(stream);
+            }
+        }
+    }
+
+    // Placeholder methods to simulate missing parts
+    private InputStream getJasperTemplateAsStream(Language language) {
+        // Implement your method to get the Jasper template InputStream based on the language
+        return null;
+    }
+
+    private Map<String, Object> getReportParams(SequenceSearchCriteria paramsSource) {
+        // Implement your method to get the report parameters
+        return new HashMap<>();
+    }
+}
