@@ -1,0 +1,29 @@
+# Use an official OpenJDK runtime as a parent image
+FROM openjdk:11-jre-slim
+
+# Set the environment variables for AppDynamics
+ENV APPD_AGENT_HOME /appdynamics
+ENV APPDYNAMICS_AGENT_ACCOUNT_NAME your-account-name
+ENV APPDYNAMICS_CONTROLLER_HOST_NAME your-controller-host
+ENV APPDYNAMICS_CONTROLLER_PORT 8090
+ENV APPDYNAMICS_AGENT_APPLICATION_NAME your-application-name
+ENV APPDYNAMICS_AGENT_TIER_NAME your-tier-name
+ENV APPDYNAMICS_AGENT_NODE_NAME your-node-name
+ENV APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY your-access-key
+
+# Create directory for AppDynamics agent
+RUN mkdir -p ${APPD_AGENT_HOME}
+
+# Download and extract AppDynamics agent (replace the URL with your actual download link)
+ADD https://download.appdynamics.com/download/prox/download-file/sun-jvm/21.10.0.3393/AppServerAgent-21.10.0.3393.zip /tmp/appdynamics-agent.zip
+RUN apt-get update && apt-get install -y unzip && unzip /tmp/appdynamics-agent.zip -d ${APPD_AGENT_HOME} && rm /tmp/appdynamics-agent.zip
+
+# Copy the Spring Boot application JAR file to the container
+ARG JAR_FILE=target/your-spring-boot-app.jar
+COPY ${JAR_FILE} app.jar
+
+# Add AppDynamics agent to the Java command
+ENTRYPOINT ["java", "-javaagent:/appdynamics/javaagent.jar", "-Dappdynamics.controller.hostName=${APPDYNAMICS_CONTROLLER_HOST_NAME}", "-Dappdynamics.controller.port=${APPDYNAMICS_CONTROLLER_PORT}", "-Dappdynamics.agent.applicationName=${APPDYNAMICS_AGENT_APPLICATION_NAME}", "-Dappdynamics.agent.tierName=${APPDYNAMICS_AGENT_TIER_NAME}", "-Dappdynamics.agent.nodeName=${APPDYNAMICS_AGENT_NODE_NAME}", "-Dappdynamics.agent.accountName=${APPDYNAMICS_AGENT_ACCOUNT_NAME}", "-Dappdynamics.agent.accountAccessKey=${APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY}", "-jar", "/app.jar"]
+
+# Expose the port your Spring Boot app runs on
+EXPOSE 8080
