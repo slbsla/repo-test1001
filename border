@@ -1,0 +1,56 @@
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
+public class ExcelGenerator {
+
+    public static void main(String[] args) throws IOException {
+        // Path to the template Excel file in resources
+        String templatePath = "src/main/resources/template.xlsx";
+        // Path to the output Excel file
+        String outputPath = "output.xlsx";
+
+        // Data to be added
+        List<Person> persons = Arrays.asList(
+                new Person("a", "ss", "s@dd.x", "c2"),
+                new Person("b", "ss", "s@dd.x", "c8"),
+                new Person("c", "ss", "s@dd.x", "c0")
+        );
+
+        // Load the template Excel file
+        FileInputStream fis = new FileInputStream(templatePath);
+        Workbook workbook = new XSSFWorkbook(fis);
+        Sheet sheet = workbook.getSheetAt(0);
+
+        // Add data starting from row 14
+        int startRow = 13; // Row index starts from 0, so row 14 is index 13
+
+        for (Person person : persons) {
+            Row row = sheet.createRow(startRow++);
+            row.createCell(1).setCellValue(person.getNom());
+            row.createCell(2).setCellValue(person.getPrenom());
+            Cell emailCell = row.createCell(3);
+            emailCell.setCellValue(person.getEmail());
+            emailCell.setHyperlink(createHelper.createHyperlink(HyperlinkType.EMAIL));
+            row.createCell(4).setCellValue(person.getClasse());
+        }
+
+        // Close the FileInputStream
+        fis.close();
+
+        // Save the new Excel file
+        FileOutputStream fos = new FileOutputStream(outputPath);
+        workbook.write(fos);
+        fos.close();
+
+        // Close the workbook
+        workbook.close();
+
+        System.out.println("Excel file generated successfully!");
+    }
+}
