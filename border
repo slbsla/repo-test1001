@@ -2,13 +2,12 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileInputStream;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-public class ExcelGenerator {
+public class ExcelGeneratorWithBorders {
 
     public static void main(String[] args) throws IOException {
         // Path to the template Excel file in resources
@@ -31,14 +30,19 @@ public class ExcelGenerator {
         // Add data starting from row 14
         int startRow = 13; // Row index starts from 0, so row 14 is index 13
 
+        // Define the border style
+        CellStyle borderStyle = workbook.createCellStyle();
+        borderStyle.setBorderBottom(BorderStyle.THIN);
+        borderStyle.setBorderTop(BorderStyle.THIN);
+        borderStyle.setBorderRight(BorderStyle.THIN);
+        borderStyle.setBorderLeft(BorderStyle.THIN);
+
         for (Person person : persons) {
             Row row = sheet.createRow(startRow++);
-            row.createCell(1).setCellValue(person.getNom());
-            row.createCell(2).setCellValue(person.getPrenom());
-            Cell emailCell = row.createCell(3);
-            emailCell.setCellValue(person.getEmail());
-            emailCell.setHyperlink(createHelper.createHyperlink(HyperlinkType.EMAIL));
-            row.createCell(4).setCellValue(person.getClasse());
+            createCellWithBorder(row, 1, person.getNom(), borderStyle);
+            createCellWithBorder(row, 2, person.getPrenom(), borderStyle);
+            createCellWithBorder(row, 3, person.getEmail(), borderStyle, workbook);
+            createCellWithBorder(row, 4, person.getClasse(), borderStyle);
         }
 
         // Close the FileInputStream
@@ -52,6 +56,67 @@ public class ExcelGenerator {
         // Close the workbook
         workbook.close();
 
-        System.out.println("Excel file generated successfully!");
+        System.out.println("Excel file with borders generated successfully!");
+    }
+
+    private static void createCellWithBorder(Row row, int column, String value, CellStyle style) {
+        Cell cell = row.createCell(column);
+        cell.setCellValue(value);
+        cell.setCellStyle(style);
+    }
+
+    private static void createCellWithBorder(Row row, int column, String value, CellStyle style, Workbook workbook) {
+        Cell cell = row.createCell(column);
+        cell.setCellValue(value);
+        Hyperlink link = workbook.getCreationHelper().createHyperlink(HyperlinkType.EMAIL);
+        link.setAddress("mailto:" + value);
+        cell.setHyperlink(link);
+        cell.setCellStyle(style);
+    }
+}
+
+class Person {
+    private String nom;
+    private String prenom;
+    private String email;
+    private String classe;
+
+    public Person(String nom, String prenom, String email, String classe) {
+        this.nom = nom;
+        this.prenom = prenom;
+        this.email = email;
+        this.classe = classe;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public String getPrenom() {
+        return prenom;
+    }
+
+    public void setPrenom(String prenom) {
+        this.prenom = prenom;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getClasse() {
+        return classe;
+    }
+
+    public void setClasse(String classe) {
+        this.classe = classe;
     }
 }
