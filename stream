@@ -1,0 +1,34 @@
+import org.apache.commons.io.output.UnsynchronizedByteArrayOutputStream;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+public class SequencesListExportService {
+    public byte[] export() {
+        byte[] bytes;
+        XSSFWorkbook workbook = null;
+        try (UnsynchronizedByteArrayOutputStream baos = UnsynchronizedByteArrayOutputStream.builder().build()) {
+            String templatePath = "classpath:templates/sequences_list_template_fr.xlsx";
+            File file = new File(templatePath);
+
+            if (file.exists()) {
+                workbook = new XSSFWorkbook(new FileInputStream(file));
+            }
+
+            // Manipulation du workbook ici
+
+            workbook.write(baos);
+            bytes = baos.toByteArray();
+            return bytes;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new byte[0];
+        } finally {
+            if (workbook != null) {
+                try {
+                    workbook.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
