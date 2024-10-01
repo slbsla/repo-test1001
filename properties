@@ -1,0 +1,40 @@
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+                <buildInfo>true</buildInfo>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.info.BuildProperties;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+==================================
+
+
+@RestController
+public class BuildInfoController {
+
+    private final BuildProperties buildProperties;
+
+    @Autowired
+    public BuildInfoController(BuildProperties buildProperties) {
+        this.buildProperties = buildProperties;
+    }
+
+    @GetMapping("/build-info")
+    public String getBuildInfo() {
+        return "Build Version: " + buildProperties.getVersion();
+    }
+}
+============
+
+If the BuildProperties bean is not being injected correctly, ensure that your application context is scanning the META-INF directory of the build-info.properties file. 
+Spring Boot should automatically include this, but if not, make sure the build-info.properties file is in the correct location (BOOT-INF/classes/META-INF/ inside the JAR).
+
