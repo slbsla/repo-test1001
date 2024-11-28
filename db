@@ -1,0 +1,11 @@
+SELECT 
+    segment_name AS table_name,
+    SUM(bytes) / 1024 / 1024 AS size_mb
+FROM 
+    dba_segments
+WHERE 
+    segment_type = 'TABLE'
+GROUP BY 
+    segment_name
+ORDER BY 
+    size_mb DESC;
